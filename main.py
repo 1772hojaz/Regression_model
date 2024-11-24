@@ -1,5 +1,6 @@
 import pickle as pk
 import numpy as np
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from sklearn.preprocessing import LabelEncoder
@@ -34,7 +35,7 @@ def root():
 @app.post('/predict')
 def predict(request: PredictionRequest):
     try:
-        # Initialize label encoders (refit them here)
+        # Initialize label encoders for categorical variables
         label_encoders = {
             'Outlet_Type': LabelEncoder(),
             'Outlet_Size': LabelEncoder(),
@@ -42,7 +43,7 @@ def predict(request: PredictionRequest):
             'New_Item_Type': LabelEncoder(),
         }
 
-        # Fit the encoders using known categories (this is just an example, replace with your known categories)
+        # Fit the encoders using known categories (replace with actual categories)
         label_encoders['Outlet_Type'].fit(["Supermarket Type1", "Supermarket Type2", "Supermarket Type3"])
         label_encoders['Outlet_Size'].fit(["small", "medium", "high"])
         label_encoders['Outlet_Location_Type'].fit(["Tier1", "Tier2", "Tier3"])
@@ -57,11 +58,19 @@ def predict(request: PredictionRequest):
             request.Item_MRP,
             request.Outlet_Years
         ]
+        
+        # Convert the encoded features to a DataFrame to use One-Hot Encoding
+        encoded_df = pd.DataFrame([encoded_features], columns=[
+            'Outlet_Type', 'Outlet_Size', 'Outlet_Location_Type', 'New_Item_Type', 'Item_MRP', 'Outlet_Years'
+        ])
 
-        # Convert the encoded features to a NumPy array
-        input_features = np.array(encoded_features).reshape(1, -1)
+        # Perform One-Hot Encoding on categorical columns
+        encoded_df = pd.get_dummies(encoded_df, columns=['Outlet_Type', 'Outlet_Size', 'Outlet_Location_Type', 'New_Item_Type'])
 
-        # Make prediction
+        # Convert the DataFrame to a NumPy array for prediction
+        input_features = encoded_df.values.reshape(1, -1)
+
+        # Make prediction using the model
         prediction = model.predict(input_features)
 
         # Return the prediction as a response
