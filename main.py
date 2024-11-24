@@ -13,11 +13,11 @@ app = FastAPI()
 # Define the input schema for prediction requests
 class PredictionRequest(BaseModel):
     Item_MRP: float
-    Outlet_Size: int
-    Outlet_Location_Type: int
-    Outlet_Type: int
-    New_Item_Type: int
-    Outlet_Years: int
+    Outlet_Size: int  # Integer for Outlet Size
+    Outlet_Location_Type: int  # Integer for Outlet Location Type
+    Outlet_Type: int  # Integer for Outlet Type
+    New_Item_Type: int  # Integer for New Item Type
+    Outlet_Years: int  # Integer for Outlet Years
 
 # Root endpoint to provide API information
 @app.get('/')
@@ -27,6 +27,7 @@ def root():
         "endpoints": {
             "predict": "POST /predict - Provide features to get a prediction"
         }
+    }
 
 # Prediction endpoint
 @app.post('/predict')
