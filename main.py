@@ -4,21 +4,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from sklearn.preprocessing import LabelEncoder
 
-# Load the trained regression model and label encoder
+# Load the trained regression model
 with open('model.pkl', 'rb') as file:
     model = pk.load(file)
-
-# Initialize LabelEncoder (use the one trained during model training if available)
-label_encoders = {
-    'Outlet_Type': LabelEncoder(),
-    'Outlet_Size': LabelEncoder(),
-    'Outlet_Location_Type': LabelEncoder(),
-    'New_Item_Type': LabelEncoder(),
-}
-
-# Load or train label encoders if necessary (make sure these encoders were saved or refit)
-# label_encoders['Outlet_Type'].fit(["Supermarket Type1", "Supermarket Type2", "Supermarket Type3"])  # Example for training
-# Repeat for other label encoders as necessary
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -46,6 +34,20 @@ def root():
 @app.post('/predict')
 def predict(request: PredictionRequest):
     try:
+        # Initialize label encoders (refit them here)
+        label_encoders = {
+            'Outlet_Type': LabelEncoder(),
+            'Outlet_Size': LabelEncoder(),
+            'Outlet_Location_Type': LabelEncoder(),
+            'New_Item_Type': LabelEncoder(),
+        }
+
+        # Fit the encoders using known categories (this is just an example, replace with your known categories)
+        label_encoders['Outlet_Type'].fit(["Supermarket Type1", "Supermarket Type2", "Supermarket Type3"])
+        label_encoders['Outlet_Size'].fit(["small", "medium", "high"])
+        label_encoders['Outlet_Location_Type'].fit(["Tier1", "Tier2", "Tier3"])
+        label_encoders['New_Item_Type'].fit(["Food", "Drinks", "Non-Consumable"])
+
         # Apply label encoding to categorical features
         encoded_features = [
             label_encoders['Outlet_Type'].transform([request.Outlet_Type])[0],
