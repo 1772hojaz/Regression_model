@@ -12,7 +12,6 @@ app = FastAPI()
 
 # Define the input schema for prediction requests
 class PredictionRequest(BaseModel):
-    Item_Type: int
     Item_MRP: float
     Outlet_Size: int
     Outlet_Location_Type: int
@@ -27,11 +26,7 @@ def root():
         "message": "Welcome to the Regression Model API!",
         "endpoints": {
             "predict": "POST /predict - Provide features to get a prediction"
-        },
-        "example_usage": {
-            "curl": "curl -X POST http://127.0.0.1:8000/predict -H 'Content-Type: application/json' -d '{\"Item_Type\": 1, \"Item_MRP\": 249.8, \"Outlet_Size\": 2, \"Outlet_Location_Type\": 1, \"Outlet_Type\": 3, \"New_Item_Type\": 0, \"Outlet_Years\": 10}'"
         }
-    }
 
 # Prediction endpoint
 @app.post('/predict')
@@ -39,7 +34,6 @@ def predict(request: PredictionRequest):
     try:
         # Convert input features into a NumPy array
         input_features = np.array([
-            request.Item_Type,
             request.Item_MRP,
             request.Outlet_Size,
             request.Outlet_Location_Type,
